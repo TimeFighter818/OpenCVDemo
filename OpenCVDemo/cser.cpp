@@ -56,6 +56,8 @@ public:
 
 		_frame_rec_ok = false;
 		_continue = false;
+		//打开串口
+		_serialPort->Open();
 		//启用读串口线程，如果你是在发完命令后等待应答信息的话，则不要启用读串口线程。
 		if (_ser_mode == 1)
 		{
@@ -64,10 +66,6 @@ public:
 			readThread->Start();
 			_continue = true;  //为真，则串口读线程开始接收数据帧
 		}
-
-
-		//打开串口
-		_serialPort->Open();
 		
 		Console::WriteLine("Serial Port is Opened.");
 	}
@@ -122,7 +120,10 @@ public:
 	static void ClosePort(void)
 	{
 		if (_ser_mode == 1)
-			readThread->Join();  //模式1，在InitPort中启用了读串口线程，则要在这里关闭读线程
+		{
+			readThread->Abort();
+			//readThread->Join();  //模式1，在InitPort中启用了读串口线程，则要在这里关闭读线程
+		}
 
 		_serialPort->Close();  //关闭串口
 		Console::WriteLine("Serial Port is Closed .");
@@ -140,7 +141,7 @@ public:
 		{
 			try
 			{
-				//int nByte;
+				//int nByte=0;
 				//nByte = _serialPort->ReadByte(); //读一个字节。跟下面这个Read类似，看哪一个能成功读到1个字节。
 				//buff_rec[0] = nByte;
 				//if (nByte != -1)

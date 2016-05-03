@@ -33,8 +33,8 @@ CvCapture* capture;
 int main(int argc, const char** argv)
 {
 	unsigned char buff[CMD_LENGTH];
-	InitPort(0);//打开串口，使用串口读模式0，也就是每次本程序主动发送一个数据帧，stm32接收到数据帧后立即返回一个应答数据帧
-	//InitPort(1);//打开串口，使用串口读模式1，也就是本程序一直等待stm由串口发来一个命令，根据命令处理完毕后返回一个应答数据帧
+	//InitPort(0);//打开串口，使用串口读模式0，也就是每次本程序主动发送一个数据帧，stm32接收到数据帧后立即返回一个应答数据帧
+	InitPort(1);//打开串口，使用串口读模式1，也就是本程序一直等待stm由串口发来一个命令，根据命令处理完毕后返回一个应答数据帧
 
 	//建立一个摄像头的捕获通道，下面两个函数好像都可以。
 	//capture = cvCreateCameraCapture(0);
@@ -49,7 +49,7 @@ int main(int argc, const char** argv)
 
 			if (!imgSrc.empty())  //如果图像获取成功
 			{
-				imgSrc = imread("C:\\Users\\tlan\\Documents\\Projects\\2.jpg", 1);  //调试用，获取一张保存的图片代替摄像头
+				//imgSrc = imread("C:\\Users\\tlan\\Documents\\Projects\\2.jpg", 1);  //调试用，获取一张保存的图片代替摄像头
 				blur(imgSrc, imgSrc, Size(3, 3));  //模糊化一下，相当于PS磨皮？
 				cvtColor(imgSrc, imgHSV, COLOR_BGR2HSV);   //将图像转换成HSV色彩空间
 				//因为我们读取的是彩色图，直方图均衡化需要在HSV空间做
@@ -137,7 +137,8 @@ int main(int argc, const char** argv)
 						max_i = i;
 					}
 				}
-
+				
+				/*
 				//在串口模式0下（InitPort(0)情况下），立即发送处理完的数据。例如：在运输任务中，将最大的那个矩形框的中心X，Y坐标发送给STM32。
 				buff[0] = MT_ADDR;
 				buff[1] = MCU_ADDR;
@@ -167,9 +168,11 @@ int main(int argc, const char** argv)
 					nRet=SendFrame(buff);
 
 				}
+				*/
 
 				//在串口模式1下（InitPort(1)情况下）
 				//PC机检测STM32是否有数据帧发送来，如果有则立即处理完返回数据
+				
 				if (GetFrame(buff) != -1)
 				{
 					buff[0] = MT_ADDR;
@@ -225,7 +228,7 @@ int main(int argc, const char** argv)
 						break;
 					}
 				}
-
+				
 			}
 			else  //如果图像获取不成功，则退出while循环
 			{
