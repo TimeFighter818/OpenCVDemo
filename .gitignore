@@ -279,3 +279,5 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+FindContours/FindContours.vcxproj
+OpenCVDemo/OpenCVDemo.vcxproj

@@ -22,6 +22,7 @@ public ref class PortChat
 private:
 	static bool _continue;
 	static bool _frame_rec_ok;  //是否接收到一个完整帧
+	static short _rec_count;  //接收的字节数
 	static SerialPort^ _serialPort;  //串口指针
 	static Thread^ readThread;  //读串口线程
 	static array<unsigned char,1>^ _buff; //发送缓冲区
@@ -40,7 +41,7 @@ public:
 		_buff = gcnew array<unsigned char, 1>(CMD_LENGTH);
 		_buff_rec = gcnew array<unsigned char, 1>(CMD_LENGTH);
 
-		// 用户在串口中输入串口参数 Allow the user to set the appropriate properties.
+		// 用户在窗口中输入串口参数 Allow the user to set the appropriate properties.
 		_serialPort->PortName = "COM3";
 		_serialPort->BaudRate = 19200;
 		_serialPort->PortName = SetPortName(_serialPort->PortName);
@@ -56,16 +57,22 @@ public:
 
 		_frame_rec_ok = false;
 		_continue = false;
+		_rec_count = 0;
+		
+		//添加数据接收事件处理声明。如果这里添加了，下面的启用读串口线程就不用开启了。
+		if (_ser_mode == 1)
+			_serialPort->DataReceived += gcnew SerialDataReceivedEventHandler(PortChat::DataReceived);
+
 		//打开串口
 		_serialPort->Open();
 		//启用读串口线程，如果你是在发完命令后等待应答信息的话，则不要启用读串口线程。
-		if (_ser_mode == 1)
-		{
-			readThread = gcnew Thread(gcnew ThreadStart(PortChat::Read));
-			//启动读串口线程
-			readThread->Start();
-			_continue = true;  //为真，则串口读线程开始接收数据帧
-		}
+		//if (_ser_mode == 1)
+		//{
+		//	readThread = gcnew Thread(gcnew ThreadStart(PortChat::Read));
+		//	//启动读串口线程
+		//	readThread->Start();
+		//	_continue = true;  //为真，则串口读线程开始接收数据帧
+		//}
 		
 		Console::WriteLine("Serial Port is Opened.");
 	}
@@ -119,17 +126,52 @@ public:
 	}
 	static void ClosePort(void)
 	{
-		if (_ser_mode == 1)
-		{
-			readThread->Abort();
-			//readThread->Join();  //模式1，在InitPort中启用了读串口线程，则要在这里关闭读线程
-		}
+		//if (_ser_mode == 1)
+		//{
+		//	readThread->Abort();
+		//	//readThread->Join();  //模式1，在InitPort中启用了读串口线程，则要在这里关闭读线程
+		//}
 
 		_serialPort->Close();  //关闭串口
 		Console::WriteLine("Serial Port is Closed .");
 	}
 
-
+	//数据接收事件处理函数
+	static void DataReceived(Object^ sender, SerialDataReceivedEventArgs^ e)
+	{
+		int nByte = 0;
+		try
+		{
+			while (nByte = _serialPort->ReadByte() != -1) //读一个字节。
+			//if (nByte != -1)
+			{
+				//如果上一次的数据帧没有处理完毕，则丢弃接收到的字节？
+				if (_frame_rec_ok == true)
+				{
+					;
+				}
+				else
+				{
+					_buff_rec[_rec_count] = nByte;  //把一个字节保存到类私有变量_buff_rec中去
+					_rec_count++;
+					if (nByte == CMD_END_BYTE && _rec_count == CMD_LENGTH) //如果接收到了帧长度字节，而且最后一个字节是结束标志，则表明接收成功
+					{
+						_frame_rec_ok = true;
+					}
+					else
+					{
+						_frame_rec_ok = false;
+					}
+				}
+				if (nByte == CMD_END_BYTE || _rec_count >= CMD_LENGTH) //如果接收到结束字节或者接收到帧长度时，下次从0开始
+				{
+					_rec_count = 0;
+				}
+			}
+		}
+		catch (TimeoutException ^) {}
+	}
+	//数据接收线程
 	static void Read()
 	{
 		short i;
