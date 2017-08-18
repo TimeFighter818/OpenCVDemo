@@ -1,11 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCVDemo", "OpenCVDemo\OpenCVDemo.vcxproj", "{9952C40E-E66A-4C82-8682-F5F9332B91CA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FindContours", "FindContours\FindContours.vcxproj", "{5F95C478-2CD8-42E9-A01F-08EFBAE4CB1A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CaptureIMG", "CaptureIMG\CaptureIMG.vcxproj", "{549B69B8-4B8B-47AA-88F0-991784DE2F45}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MobileCar", "MobileCar\MobileCar.vcxproj", "{CC4A8436-4ACF-4B7D-A4E5-DE01E1716D10}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +43,26 @@ Global
 		{5F95C478-2CD8-42E9-A01F-08EFBAE4CB1A}.Release|Win32.ActiveCfg = Release|Win32
 		{5F95C478-2CD8-42E9-A01F-08EFBAE4CB1A}.Release|Win32.Build.0 = Release|Win32
 		{5F95C478-2CD8-42E9-A01F-08EFBAE4CB1A}.Release|x64.ActiveCfg = Release|Win32
+		{549B69B8-4B8B-47AA-88F0-991784DE2F45}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{549B69B8-4B8B-47AA-88F0-991784DE2F45}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{549B69B8-4B8B-47AA-88F0-991784DE2F45}.Debug|Win32.ActiveCfg = Debug|Win32
+		{549B69B8-4B8B-47AA-88F0-991784DE2F45}.Debug|Win32.Build.0 = Debug|Win32
+		{549B69B8-4B8B-47AA-88F0-991784DE2F45}.Debug|x64.ActiveCfg = Debug|x64
+		{549B69B8-4B8B-47AA-88F0-991784DE2F45}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{549B69B8-4B8B-47AA-88F0-991784DE2F45}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{549B69B8-4B8B-47AA-88F0-991784DE2F45}.Release|Win32.ActiveCfg = Release|Win32
+		{549B69B8-4B8B-47AA-88F0-991784DE2F45}.Release|Win32.Build.0 = Release|Win32
+		{549B69B8-4B8B-47AA-88F0-991784DE2F45}.Release|x64.ActiveCfg = Release|Win32
+		{CC4A8436-4ACF-4B7D-A4E5-DE01E1716D10}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{CC4A8436-4ACF-4B7D-A4E5-DE01E1716D10}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{CC4A8436-4ACF-4B7D-A4E5-DE01E1716D10}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CC4A8436-4ACF-4B7D-A4E5-DE01E1716D10}.Debug|Win32.Build.0 = Debug|Win32
+		{CC4A8436-4ACF-4B7D-A4E5-DE01E1716D10}.Debug|x64.ActiveCfg = Debug|x64
+		{CC4A8436-4ACF-4B7D-A4E5-DE01E1716D10}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{CC4A8436-4ACF-4B7D-A4E5-DE01E1716D10}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{CC4A8436-4ACF-4B7D-A4E5-DE01E1716D10}.Release|Win32.ActiveCfg = Release|Win32
+		{CC4A8436-4ACF-4B7D-A4E5-DE01E1716D10}.Release|Win32.Build.0 = Release|Win32
+		{CC4A8436-4ACF-4B7D-A4E5-DE01E1716D10}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 		cvCreateTrackbar("HSV阈值", "Control", &nHSVThresh, 255); //创建阈值控制条，只要H、S、V值落在正负这个范围内，就算是要找的颜色
 		
 		imgSrc = cvQueryFrame(capture); //从摄像头获取一副图像
-		imshow("Original", imgSrc); //show the original image
+		if (!imgSrc.empty()) imshow("Original", imgSrc); //show the original image
 
 		setMouseCallback("Original", onMouse, 0);  //设置鼠标事件处理函数，这样在原图像上单击鼠标左键即可获得那个点的HSV值，并改变控制条的位置，获得新的HSV值
 

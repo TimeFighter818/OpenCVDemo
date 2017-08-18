@@ -281,3 +281,4 @@ $RECYCLE.BIN/
 *.lnk
 FindContours/FindContours.vcxproj
 OpenCVDemo/OpenCVDemo.vcxproj
+OpenCVDemo.VC.db

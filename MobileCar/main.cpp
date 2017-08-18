@@ -1,6 +1,11 @@
 //#include "opencv2/objdetect/objdetect.hpp"
+#include "opencv2/features2d/features2d.hpp"
+//#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/nonfree/features2d.hpp"
+
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/opencv_modules.hpp"
 
 #include <iostream>
 #include <stdio.h>
@@ -28,16 +33,21 @@ RNG rng(12345);
 vector<vector<Point> > contours;
 vector<Vec4i> hierarchy;
 CvCapture* capture;
-
+int FeatureMatching(Mat img_1, Mat img_2);
 /** @ Main主函数 */
 int main(int argc, const char** argv)
 {
+	Mat img_1, img_2;
 	unsigned char buff[CMD_LENGTH];
 	//InitPort(0);//打开串口，使用串口读模式0，也就是每次本程序主动发送一个数据帧，stm32接收到数据帧后立即返回一个应答数据帧
-	InitPort(1);//打开串口，使用串口读模式1，也就是本程序一直等待stm由串口发来一个命令，根据命令处理完毕后返回一个应答数据帧
+	//InitPort(1);//打开串口，使用串口读模式1，也就是本程序一直等待stm由串口发来一个命令，根据命令处理完毕后返回一个应答数据帧
 	//建立一个摄像头的捕获通道，下面两个函数好像都可以。
 	//capture = cvCreateCameraCapture(0);
 	capture = cvCaptureFromCAM(0);
+
+	//img_1=imread("C:\\Users\\tlan\\Documents\\NBU\\image_10.jpg");
+	//img_2=imread("C:\\Users\\tlan\\Documents\\NBU\\image_11.jpg");
+	//FeatureMatching(img_1, img_2);
 
 	if (capture) //如果捕获成功
 	{
@@ -45,9 +55,12 @@ int main(int argc, const char** argv)
 		{
 			imgSrc = cvQueryFrame(capture); //从摄像头获取一副图像
 
-
+			imgSrc = imread("C:\\Users\\tlan\\Documents\\NBU\\image_10.jpg");
 			if (!imgSrc.empty())  //如果图像获取成功
 			{
+				img_2=imread("C:\\Users\\tlan\\Documents\\NBU\\image_10.jpg");
+				FeatureMatching(imgSrc, img_2);
+
 				//imgSrc = imread("C:\\Users\\tlan\\Documents\\Projects\\2.jpg", 1);  //调试用，获取一张保存的图片代替摄像头
 				blur(imgSrc, imgSrc, Size(3, 3));  //模糊化一下，相当于PS磨皮？
 				cvtColor(imgSrc, imgHSV, COLOR_BGR2HSV);   //将图像转换成HSV色彩空间
@@ -246,4 +259,80 @@ int main(int argc, const char** argv)
 	}
 	ClosePort();//关闭串口
 	return 0;
+}
+
+int FeatureMatching(Mat img_1, Mat img_2)
+{
+	if (!img_1.data || !img_2.data)
+	{
+		printf(" --(!) Error reading images \n"); return -1;
+	}
+
+	//-- Step 1: Detect the keypoints using SURF Detector
+	int minHessian = 400;
+
+	SurfFeatureDetector detector(minHessian);
+
+	std::vector<KeyPoint> keypoints_1, keypoints_2;
+
+	detector.detect(img_1, keypoints_1);
+	detector.detect(img_2, keypoints_2);
+
+	//-- Step 2: Calculate descriptors (feature vectors)
+	SurfDescriptorExtractor extractor;
+
+	Mat descriptors_1, descriptors_2;
+
+	extractor.compute(img_1, keypoints_1, descriptors_1);
+	extractor.compute(img_2, keypoints_2, descriptors_2);
+
+	//-- Step 3: Matching descriptor vectors using FLANN matcher
+	FlannBasedMatcher matcher;
+	std::vector< DMatch > matches;
+	matcher.match(descriptors_1, descriptors_2, matches);
+
+	double max_dist = 0; double min_dist = 100;
+
+	//-- Quick calculation of max and min distances between keypoints
+	for (int i = 0; i < descriptors_1.rows; i++)
+	{
+		double dist = matches[i].distance;
+		if (dist < min_dist) min_dist = dist;
+		if (dist > max_dist) max_dist = dist;
+	}
+
+	printf("-- Max dist : %f \n", max_dist);
+	printf("-- Min dist : %f \n", min_dist);
+
+	//-- Draw only "good" matches (i.e. whose distance is less than 2*min_dist,
+	//-- or a small arbitary value ( 0.02 ) in the event that min_dist is very
+	//-- small)
+	//-- PS.- radiusMatch can also be used here.
+	std::vector< DMatch > good_matches;
+
+	for (int i = 0; i < descriptors_1.rows; i++)
+	{
+		if (matches[i].distance <= max(2 * min_dist, 0.02))
+		{
+			good_matches.push_back(matches[i]);
+		}
+	}
+
+	//-- Draw only "good" matches
+	Mat img_matches;
+	drawMatches(img_1, keypoints_1, img_2, keypoints_2,
+		good_matches, img_matches, Scalar::all(-1), Scalar::all(-1),
+		vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+
+	//-- Show detected matches
+	imshow("Good Matches", img_matches);
+
+	//for (int i = 0; i < (int)good_matches.size(); i++)
+	//{
+	//	printf("-- Good Match [%d] Keypoint 1: %d  -- Keypoint 2: %d  \n", i, good_matches[i].queryIdx, good_matches[i].trainIdx);
+	//}
+	printf("-- Good Matches [%d] -- \r\n", good_matches.size());
+	//waitKey(0);
+
+	return (int)good_matches.size();
 }
